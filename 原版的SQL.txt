@@ -1,0 +1,409 @@
+
+---策略平台数据("用户分组模型")
+
+drop table clhj_clpt_list_201510V2;
+create table clhj_clpt_list_201510V2
+as
+select 
+--融合无协议
+case when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and  a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 <= 5 then 'HJ01'
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and  a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 > 5  and a.evdo <= 10 then 'HJ02'
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and  a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 > 5  and a.evdo > 10 then 'HJ03'
+    
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and  a.hs_cdma_ter_price > 599 and a.hs_cdma_ter_price <= 1290  and a.evdo <= 10 then 'HJ04'
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and  a.hs_cdma_ter_price > 599 and a.hs_cdma_ter_price <= 1290  and a.evdo > 10  then 'HJ05'
+     
+     
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo <= 0 then 'HJ06'
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 0 and a.evdo <= 10 then 'HJ07'
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 10 and a.evdo <= 50 then 'HJ08'
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 50 and a.evdo <= 200 then 'HJ09'
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 200 then 'HJ10'
+     
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 2000 and a.hs_cdma_ter_price <= 3000  and a.evdo <= 200 then 'HJ11'
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 2000 and a.hs_cdma_ter_price <= 3000  and a.evdo > 200 then 'HJ12'
+     when b.用户ID is not null and b.用户分组 in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 3000  then 'HJ13'
+--融合有协议     
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and  a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 <= 5 then 'HJ14'
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 > 5  and a.evdo <= 10 then 'HJ15'
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 > 5  and a.evdo > 10 then 'HJ16'
+    
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 599 and a.hs_cdma_ter_price <= 1290  and a.evdo <= 10 then 'HJ17'
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and  a.hs_cdma_ter_price > 599 and a.hs_cdma_ter_price <= 1290  and a.evdo > 10 then 'HJ18'
+     
+     
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo <= 0 then 'HJ19'
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 0 and a.evdo <= 10 then 'HJ20'
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 10 and a.evdo <= 50 then 'HJ21'
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 50 and a.evdo <= 200 then 'HJ22'
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 200 then 'HJ23'
+     
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 2000 and a.hs_cdma_ter_price <= 3000  and a.evdo <= 200 then 'HJ24'
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 2000 and a.hs_cdma_ter_price <= 3000  and a.evdo > 200 then 'HJ25'
+     when b.用户ID is not null and b.用户分组 not in ('R','RD1','RD2')  and a.hs_cdma_ter_price > 3000  then 'HJ26'
+ --单品合约即将到期
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 <= 5 then 'HJ40'
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 > 5  and a.evdo <= 10 then 'HJ41'
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 > 5  and a.evdo > 10 then 'HJ42'
+    
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price > 599 and a.hs_cdma_ter_price <= 1290  and a.evdo <= 10 then 'HJ43'
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price > 599 and a.hs_cdma_ter_price <= 1290  and a.evdo > 10 then 'HJ44'
+     
+     
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo <= 0 then 'HJ45'
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 0 and a.evdo <= 10 then 'HJ46'
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 10 and a.evdo <= 50 then 'HJ47'
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 50 and a.evdo <= 200 then 'HJ48'
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 200 then 'HJ49'
+     
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price > 2000 and a.hs_cdma_ter_price <= 3000  and a.evdo <= 200 then 'HJ50'
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price > 2000 and a.hs_cdma_ter_price <= 3000  and a.evdo > 200 then 'HJ51'
+     when c.serv_id is not null and d.用户ID is not null  and c.AGREEMENT_NAME like '%乐享%' and c.REF_EXP_TIME  >= to_date('2015-2-20','yyyy-mm-dd') and c.REF_EXP_TIME  <= to_date('2015-09-01','yyyy-mm-dd')   and a.hs_cdma_ter_price > 3000  then 'HJ52'
+ --单品无协议   
+     when  d.用户ID is not null  and d.用户分组 <>  'SPOTH' and a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 <= 5 then 'HJ53'
+     when  d.用户ID is not null  and d.用户分组 <>  'SPOTH' and a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 > 5  and a.evdo <= 10 then 'HJ54'
+     when  d.用户ID is not null  and d.用户分组 <>  'SPOTH' and a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 > 5  and a.evdo > 10 then 'HJ55'
+    
+     when   d.用户ID is not null  and d.用户分组 <>  'SPOTH'  and  a.hs_cdma_ter_price > 599 and a.hs_cdma_ter_price <= 1290  and a.evdo <= 10 then 'HJ56'
+     when   d.用户ID is not null  and d.用户分组 <>  'SPOTH'  and a.hs_cdma_ter_price > 599 and a.hs_cdma_ter_price <= 1290  and a.evdo > 10 then 'HJ57'
+                                     
+     when   d.用户ID is not null  and d.用户分组 <>  'SPOTH'  and  a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo <= 0 then 'HJ58'
+     when   d.用户ID is not null  and d.用户分组 <>  'SPOTH'  and  a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 0 and a.evdo <= 10 then 'HJ59'
+     when   d.用户ID is not null  and d.用户分组 <>  'SPOTH'  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 10 and a.evdo <= 50 then 'HJ60'
+     when   d.用户ID is not null  and d.用户分组 <>  'SPOTH'  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 50 and a.evdo <= 200 then 'HJ61'
+     when   d.用户ID is not null  and d.用户分组 <>  'SPOTH'  and a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 200 then 'HJ62'
+                                     
+     when   d.用户ID is not null  and d.用户分组 <>  'SPOTH'  and a.hs_cdma_ter_price > 2000 and a.hs_cdma_ter_price <= 3000  and a.evdo <= 200 then 'HJ63'
+     when   d.用户ID is not null  and d.用户分组 <>  'SPOTH'  and a.hs_cdma_ter_price > 2000 and a.hs_cdma_ter_price <= 3000  and a.evdo > 200 then 'HJ64'
+     when   d.用户ID is not null  and d.用户分组 <>  'SPOTH'  and a.hs_cdma_ter_price > 3000  then 'HJ65'
+ --单品有协议   
+     when  a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 <= 5 then 'HJ27'
+     when  a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 > 5  and a.evdo <= 10 then 'HJ28'
+     when  a.hs_cdma_ter_price <= 599 and a.vo_cdma_ppsmsout_m1 > 5  and a.evdo > 10 then 'HJ29'
+    
+     when     a.hs_cdma_ter_price > 599 and a.hs_cdma_ter_price <= 1290  and a.evdo <= 10 then 'HJ30'
+     when     a.hs_cdma_ter_price > 599 and a.hs_cdma_ter_price <= 1290  and a.evdo > 10 then 'HJ31'
+                                     
+     when     a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo <= 0 then 'HJ32'
+     when     a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 0 and a.evdo <= 10 then 'HJ33'
+     when     a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 10 and a.evdo <= 50 then 'HJ34'
+     when     a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 50 and a.evdo <= 200 then 'HJ35'
+     when     a.hs_cdma_ter_price > 1290 and a.hs_cdma_ter_price <= 2000  and a.evdo > 200 then 'HJ36'
+                                     
+     when     a.hs_cdma_ter_price > 2000 and a.hs_cdma_ter_price <= 3000  and a.evdo <= 200 then 'HJ37'
+     when     a.hs_cdma_ter_price > 2000 and a.hs_cdma_ter_price <= 3000  and a.evdo > 200 then 'HJ38'
+     when     a.hs_cdma_ter_price > 3000   then 'HJ39'
+ else 'HJOTH'
+end as 用户分组,
+a.serv_id ,
+a.MSISDN,
+a.ci_city,
+case when   a.HS_CT_MONTH >= 6  then '1' else '0' end as is_ter_flag
+from clhj_01_201510 a 
+left join clhj_sms_rh_all_v2 b
+on a.serv_id = b.用户ID
+left join clhj_clhj_sms_sp_all d
+on a.serv_id = d.用户ID
+left join (select a.serv_id,协议类型,a.REF_EFF_TIME, a.REF_EXP_TIME,AGREEMENT_NAME,
+                  row_number() over(partition by serv_id order by REF_EXP_TIME desc nulls last) as num 
+           from agree_all_201510v1_final a
+           where 协议类型 <> '其他方式' 
+           ) c
+on a.serv_id = c.serv_id and c.num = 1
+;
+
+----------------------------------------------------------------------------------
+
+
+
+-----用户换机概率
+
+----用户策略换机策略分析:N月，N+3月
+
+drop table clhj_clpt_cl_02;
+create table clhj_clpt_cl_02
+as
+select  
+a.*,
+b.HS_CDMA_BRAND,
+b.HS_CDMA_MODEL,
+case when b.hs_cdma_col_date >=to_date('2015-08-01','yyyy-mm-dd') then 1 else 0 end as is_hj_flag
+from (select a.*     
+      from clhj_clpt_list_201510V2 a,/*clhj_clpt_list_201508v2第一遍跑用*/
+      tb_asz_cdma_all_201507_new_m1 b
+      where a.SERV_ID = b.serv_id 
+	  and b.hs_cdma_col_date < to_date('2015-08-01','yyyy-mm-dd')
+      ) a
+left join tb_asz_cdma_all_201510_new_m1 b
+on a.serv_id = b.serv_id
+  /*left join clhj_2g_list_v2  f
+  on b.HS_CDMA_MODEL = f.终端型号 and f.是否老人机 in ('是','台式电话','对讲机')*/
+  where/* f.终端型号 is null and*/
+  trim(b.HS_CDMA_MODEL) is not null and  trim(b.HS_CDMA_BRAND) is not null
+  and b.IS_CARDPHONE ='否'
+  and b.HS_CDMA_MODEL not like '%固定台%'
+;
+
+
+偏爱机型 ---- :
+
+--换机前三名排序
+drop table clhj_clpt_hjl_201510;
+create table clhj_clpt_hjl_201510
+as
+select 
+a.*,
+b.HS_CDMA_MODEL as 换机偏爱终端排名1,
+c.HS_CDMA_MODEL as 换机偏爱终端排名2,
+d.HS_CDMA_MODEL as 换机偏爱终端排名3,
+case when b.HS_CDMA_MODEL is not null and c.HS_CDMA_MODEL is not null and d.HS_CDMA_MODEL is not null 
+         then b.HS_CDMA_MODEL||','||c.HS_CDMA_MODEL||','||d.HS_CDMA_MODEL
+    when b.HS_CDMA_MODEL is not null and c.HS_CDMA_MODEL is not null and d.HS_CDMA_MODEL is null
+         then b.HS_CDMA_MODEL||','||c.HS_CDMA_MODEL
+    when b.HS_CDMA_MODEL is not null and c.HS_CDMA_MODEL is null and d.HS_CDMA_MODEL is null
+         then b.HS_CDMA_MODEL
+ end as 偏爱机型
+    
+from 
+(
+select
+用户分组,
+count(1) as 用户数,
+sum(is_hj_flag) as 换机用户数
+from clhj_clpt_cl_02
+group by 用户分组
+) a
+left join 
+(select
+  a.*,
+ row_number() over(partition by 用户分组 order by 用户数 desc nulls last) as num
+from 
+(
+select
+用户分组,
+hs_cdma_brand,
+HS_CDMA_MODEL,
+count(1) as 用户数
+from clhj_clpt_cl_02 
+where HS_CDMA_MODEL is not null and is_hj_flag = 1 
+group by 用户分组,
+hs_cdma_brand,
+HS_CDMA_MODEL
+) a
+
+) b
+on a.用户分组 = b.用户分组 and b.num = 1
+left join 
+(select
+  a.*,
+ row_number() over(partition by 用户分组 order by 用户数 desc nulls last) as num
+from 
+(
+select
+用户分组,
+hs_cdma_brand,
+HS_CDMA_MODEL,
+count(1) as 用户数
+from clhj_clpt_cl_02 a 
+where HS_CDMA_MODEL is not null and is_hj_flag = 1
+group by 用户分组,
+hs_cdma_brand,
+HS_CDMA_MODEL
+) a
+
+) c
+on a.用户分组 = c.用户分组 and c.num = 2
+left join 
+(select
+  a.*,
+ row_number() over(partition by 用户分组 order by 用户数 desc nulls last) as num
+from 
+(
+select
+用户分组,
+hs_cdma_brand,
+HS_CDMA_MODEL,
+count(1) as 用户数
+from clhj_clpt_cl_02
+where HS_CDMA_MODEL is not null and is_hj_flag = 1
+group by 用户分组,
+hs_cdma_brand,
+HS_CDMA_MODEL
+) a
+
+) d
+on a.用户分组 = d.用户分组 and d.num = 3
+;
+
+
+
+
+----------------------------- 机型换机率  ---------------------------------
+
+模型一
+
+---   15年10月机型换机率(剔除沉默用户的3月换机率)  
+
+drop table tmp_nyj_hjl_201510;
+create table tmp_nyj_hjl_201510
+as
+
+
+select a.hs_cdma_model, count(1) as 用户数,
+sum(case when a.hs_cdma_model <> b.hs_cdma_model and
+			  b.hs_cdma_col_date > to_date('2015-08-01','yyyy-mm-dd') 
+  then months_between(to_date('2015-08-01','yyyy-mm-dd'),a.hs_cdma_col_date) else 0 end)/
+case when sum(case when a.hs_cdma_model <> b.hs_cdma_model and  b.hs_cdma_col_date > to_date('2015-08-01','yyyy-mm-dd')  then 1 else 0 end) > 0 
+     then sum(case when a.hs_cdma_model <> b.hs_cdma_model and  b.hs_cdma_col_date > to_date('2015-08-01','yyyy-mm-dd')  then 1 else 0 end) 
+	 else 0.000001 end  as 终端平均使用时长,
+
+sum(case when a.hs_cdma_model <> b.hs_cdma_model and  b.hs_cdma_col_date > to_date('2015-08-01','yyyy-mm-dd')  then 1 else 0 end)  as 换机用户数,
+sum(case when a.hs_cdma_model <> b.hs_cdma_model and  b.hs_cdma_col_date > to_date('2015-08-01','yyyy-mm-dd')  then 1 else 0 end)/count(1)  as 换机率
+
+
+from tb_asz_cdma_all_201507_new_m1 a,tb_asz_cdma_all_201510_new_m1 b
+
+			--- a 是7月份数据 ,  b 是10月份数据
+
+where a.serv_id = b.serv_id
+and  a.hs_cdma_col_date < to_date('2015-08-01','yyyy-mm-dd')
+and a.hs_cdma_model is not null and b.hs_cdma_model is not null
+
+and a.is_wx_flag = 0 and a.payment_flag = 1 
+and b.is_wx_flag = 0 and b.payment_flag = 1
+
+group by a.hs_cdma_model
+order by count(1) desc;
+
+
+模型二 
+
+/*洞察一：用户换机时间（10月用户)          
+          
+洞察目标：识别到达换机期内用户          
+洞察输出：1、各机型换机率（剔除沉默用户的3月换机率）          
+  2、不同终端使用时长分组换机率        
+  3、基于1&2用户分组的用户数量        
+数据频率：每月10~13号出当月数据表          
+          
+数据口径：1、机型3月换机率：同一机型用户在T+1，T+2，T+3月换机率          
+                2、终端使用时长：以6月为单位分段          
+                3、沉默用户：不出账OR（语音=0 OR 短信=0 OR 流量=0）  
+*/        
+
+
+drop table clhj_clpt_cl_201509;
+create table clhj_clpt_cl_201510
+as
+select  
+case when  a.hs_cdma_brand = '华为' then '华为'
+when a.hs_cdma_brand = '酷派' then '酷派'
+when a.hs_cdma_brand = '中兴' then '中兴'
+when a.hs_cdma_brand = '苹果' then '苹果'
+when a.hs_cdma_brand = 'SAMSUNG' then 'SAMSUNG'
+when a.hs_cdma_brand = '小米' then '小米' 
+when a.hs_cdma_brand = '联想' then '联想'
+when a.hs_cdma_brand = '海信' then '海信'
+when a.hs_cdma_brand = 'HTC' then 'HTC'
+else '其他品牌'
+end as 终端品牌,
+case
+      when  months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) < 6 then 'B:小于6个月'
+      when  months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) >= 6 and months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) < 12 then 'C:[6,12)月'
+      when  months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) >= 12 and months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) < 18 then 'D:[12,18)月'
+      when  months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) >= 18 and months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) < 24 then 'E:[18,24)月'
+      when  months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) >= 24  then 'F:两年及以上'
+      else 'G:无法识别'
+  end as 终端使用时长,
+a.HS_CDMA_MODEL,
+count(1) as 用户数,
+sum(case when d.hs_cdma_col_date >=to_date('2015-08-01','yyyy-mm-dd') and d.hs_cdma_col_date < to_date('2015-09-01','yyyy-mm-dd') then 1 else 0 end) as 换机用户数_T1,
+sum(case when d.hs_cdma_col_date >=to_date('2015-09-01','yyyy-mm-dd') and d.hs_cdma_col_date < to_date('2015-10-01','yyyy-mm-dd') then 1 else 0 end) as 换机用户数_T2,
+sum(case when d.hs_cdma_col_date >=to_date('2015-10-01','yyyy-mm-dd') and d.hs_cdma_col_date < to_date('2015-11-01','yyyy-mm-dd') then 1 else 0 end) as 换机用户数_T3,
+
+sum(case when d.hs_cdma_col_date >=to_date('2015-08-01','yyyy-mm-dd') and d.hs_cdma_col_date < to_date('2015-11-01','yyyy-mm-dd') then 1 else 0 end) as 换机用户数_T13
+
+from (select * from tb_asz_cdma_all_201508_new_m1 where hs_cdma_col_date < to_date('2015-09-01','yyyy-mm-dd') and HS_CDMA_MODEL is not null  )  a/*th??*/
+/*inner join tb_asz_cdma_all_201411_new_m1 b
+on a.serv_id = b.serv_id
+inner join tb_asz_cdma_all_201507_new_m1 c
+on a.serv_id = c.serv_id*/
+left join tb_asz_cdma_all_201510_new_m1 d
+on a.serv_id = d.serv_id
+ left join clhj_2g_list_v2  f
+  on a.HS_CDMA_MODEL = f.终端型号 and f.是否老人机 in ('是','台式电话','对讲机')
+  where f.终端型号 is null and trim(a.HS_CDMA_MODEL) is not null and  trim(a.HS_CDMA_BRAND) is not null
+  and a.IS_CARDPHONE ='否'
+  and d.serv_id is not null  and d.HS_CDMA_MODEL is not null
+  and a.is_wx_flag = 0 and a.payment_flag = 1 
+  and (a.vo_evdo_vol_m1 + a.vo_1x_vol_m1 + to_number(nvl(a.FLUX_4G_1,0))> 0 or a.vo_cdma_ppsmsout_m1 > 0 or a.vo_cdma_mouout_m1 >0  )
+  and a.HS_CDMA_MODEL not like '%固定台%'
+group by 
+case when  a.hs_cdma_brand = '华为' then '华为'
+when a.hs_cdma_brand = '酷派' then '酷派'
+when a.hs_cdma_brand = '中兴' then '中兴'
+when a.hs_cdma_brand = '苹果' then '苹果'
+when a.hs_cdma_brand = 'SAMSUNG' then 'SAMSUNG'
+when a.hs_cdma_brand = '小米' then '小米' 
+when a.hs_cdma_brand = '联想' then '联想'
+when a.hs_cdma_brand = '海信' then '海信'
+when a.hs_cdma_brand = 'HTC' then 'HTC'
+else '其他品牌'
+end ,
+case
+      when  months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) < 6 then 'B:小于6个月'
+      when  months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) >= 6 and months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) < 12 then 'C:[6,12)月'
+      when  months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) >= 12 and months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) < 18 then 'D:[12,18)月'
+      when  months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) >= 18 and months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) < 24 then 'E:[18,24)月'
+      when  months_between (to_date('2015-10-31','yyyy-mm-dd'),a.hs_cdma_col_date) >= 24  then 'F:两年及以上'
+      else 'G:无法识别'
+  end,
+a.HS_CDMA_MODEL
+;
+
+
+--check data
+select * from clhj_clpt_cl_201510;
+---导出换机概率指标
+select
+a.*,
+a.换机用户数_T13 / a.用户数 as 分组换机率,
+b.机型换机率
+from clhj_clpt_cl_201510 a
+left join 
+(select
+ HS_CDMA_MODEL,
+ sum(换机用户数_T13)/sum(用户数) as 机型换机率 
+ from clhj_clpt_cl_201510
+ group by  HS_CDMA_MODEL
+ ) b
+ on a.HS_CDMA_MODEL = b.Hs_Cdma_Model
+
+;
+
+---------------------------------------------------------
+
+
+
+
+
+
+
+-------  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

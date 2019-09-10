@@ -1,0 +1,235 @@
+说明前的准备：
+
+在 SH 这边 没有 终端信息采集时间（hs_cdma_col_date）这个字段，但在 10，11月份 的数据中 存在 手机换机频率 （phone_change_freq）这个字段（仅10月份及以后月份的数据中有这个字段）
+
+phone_change_freq 的 值有如下几种 :'一个月'   ，为便于后续的 计算 被更新成了 '1'
+                                   '三个月'   ，为便于后续的 计算 被更新成了 '3' 
+                                   '半年'     ，为便于后续的 计算 被更新成了 '6'
+            	                   '一年'     ，为便于后续的 计算 被更新成了 '12'
+                                   '一年半'   ，为便于后续的 计算 被更新成了 '18'
+                                   '两年'     ，为便于后续的 计算 被更新成了 '24'
+                                   '两年以上' ，为便于后续的 计算 被更新成了 '25'   
+                                   '暂无换机' ，为便于后续的 计算 被更新成了 '0'
+				   '其它'     ，为便于后续的 计算 也 被更新成了   '0'   ,  
+
+在 “换机前三名” 模型，“机型换机概率——模型一”，“机型换机概率——模型二” 的 这三个模型 SQL 中  ，凡是有遇到 hs_cdma_col_date 以及需要计算 时间长短（如：months_between(to_date('2015-08-01','yyyy-mm-dd'),a.hs_cdma_col_date)）的 都将会用 
+
+phone_change_freq 这字段来替换 。
+
+“用户换机概率” 模型的 SQL 如下 ：
+
+----------------------------------------------
+	
+  drop table phone_change
+  create table phone_change as   
+  select  a.*
+	  b.device_class,
+	  b.hs_cdma_ter_brand,
+ case when trim(a.hs_cdma_ter_model) <> trim(b.device_class) then 1 else 0 end as is_hj_flag 	
+	from ( select a.* 
+		from dzqd_qrqm_lyhgj_201511t_p1_up   a , dzqd_qrqm_lyhgj_201508t_p1  b     	                                                                                        
+            where    trim(a.prod_inst_id) = trim(b.prod_inst_id) 
+	)a
+	left join dzqd_qrqm_lyhgj_201511t_p1_up  b
+	 on a.prod_inst_id = b.prod_inst_id  
+	where 
+            trim(b.hs_cdma_ter_model) is not null and trim(b.hs_cdma_ter_brand) is not null
+        and trim(b.hs_cdma_ter_model)  not like '%固定台%' ; 
+
+
+create table phone_change_YHFZ AS 
+select  b.用户分组,b.prod_inst_id as prod_inst_id_2015_11_t , a.*
+ from  phone_change  a left join clhj_clpt_list_201511_t b 
+ on  a.prod_inst_id = b.prod_inst_id
+
+
+
+---------排名前三 ----------------------------
+-- 换机前三名排序(修改版)
+drop table clhj_clpt_hjl_201510;
+create table clhj_clpt_hjl_201510
+as
+
+
+select 
+a.*,
+b.HS_CDMA_TER_MODEL as 换机偏爱终端排名1,
+c.HS_CDMA_TER_MODEL as 换机偏爱终端排名2,
+d.HS_CDMA_TER_MODEL as 换机偏爱终端排名3,
+case when (b.HS_CDMA_TER_MODEL is not null and trim(b.HS_CDMA_TER_MODEL) <> 'NULL') and (c.HS_CDMA_TER_MODEL is not null and trim(c.HS_CDMA_TER_MODEL) <> 'NULL') and (d.HS_CDMA_TER_MODEL is not null and trim(d.HS_CDMA_TER_MODEL) <> 'NULL' ) 
+         then b.HS_CDMA_TER_MODEL||','||c.HS_CDMA_TER_MODEL||','||d.HS_CDMA_TER_MODEL
+    when (b.HS_CDMA_TER_MODEL is not null  and trim(b.HS_CDMA_TER_MODEL) <> 'NULL') and (c.HS_CDMA_TER_MODEL is not null and trim(c.HS_CDMA_TER_MODEL) <> 'NULL' ) and (d.HS_CDMA_TER_MODEL is null or  trim(d.HS_CDMA_TER_MODEL)= 'NULL' or length(trim(d.HS_CDMA_TER_MODEL)) = 0 )
+         then b.HS_CDMA_TER_MODEL||','||c.HS_CDMA_TER_MODEL
+    when (b.HS_CDMA_TER_MODEL is not null and trim(b.HS_CDMA_TER_MODEL) <> 'NULL' ) and (c.HS_CDMA_TER_MODEL is null or trim(c.HS_CDMA_TER_MODEL) =  'NULL' or length(trim(c.HS_CDMA_TER_MODEL)) = 0 ) and (d.HS_CDMA_TER_MODEL is null or trim(d.HS_CDMA_TER_MODEL) = 'NULL' or length(trim(d.HS_CDMA_TER_MODEL)) = 0 )
+         then b.HS_CDMA_TER_MODEL
+ end as 偏爱机型
+    
+from 
+(
+  select 用户分组, count(1) as 用户数,sum(is_hj_flag) as 换机用户数
+  from phone_change_yhfz
+  group by  用户分组
+) a
+left join 
+(select
+  a.*, row_number() over(partition by 用户分组 order by 用户数 desc nulls last) as num 
+from (
+  select 用户分组, HS_CDMA_TER_BRAND, HS_CDMA_TER_MODEL,count(1) as 用户数
+  from phone_change_yhfz 
+  where HS_CDMA_TER_MODEL is not null and is_hj_flag = 1 
+  group by 用户分组, HS_CDMA_TER_BRAND, HS_CDMA_TER_MODEL
+) a ) b
+on a.用户分组 = b.用户分组 and b.num = 1
+left join 
+(select
+  a.*, row_number() over(partition by 用户分组 order by 用户数 desc nulls last) as num
+from 
+(
+  select 用户分组,HS_CDMA_TER_BRAND,HS_CDMA_TER_MODEL,count(1) as 用户数
+  from phone_change_yhfz a 
+  where HS_CDMA_TER_MODEL  is not null and  is_hj_flag = 1
+  group by 用户分组,HS_CDMA_TER_BRAND, HS_CDMA_TER_MODEL
+  ) a ) c
+on a.用户分组 = c.用户分组 and c.num = 2
+left join 
+(select
+  a.*, row_number() over(partition by 用户分组 order by 用户数 desc nulls last) as num
+from 
+(
+select 用户分组,HS_CDMA_TER_BRAND,HS_CDMA_TER_MODEL,count(1) as 用户数
+from phone_change_yhfz
+where HS_CDMA_TER_MODEL is not null and is_hj_flag = 1
+group by 用户分组,HS_CDMA_TER_BRAND,HS_CDMA_TER_MODEL
+) a ) d
+on a.用户分组 = d.用户分组 and d.num = 3 ;
+
+---------------------------------------------
+
+机型换机模型一 ：
+
+create table jxhj_model_1_1
+as
+
+select  b.hs_cdma_ter_model ,avg(b.phone_change_freq_0) as   终端平均使用时长  ,count(1) as 用户数,
+/***sum(case when a.hs_cdma_model <> b.hs_cdma_model and  b.hs_cdma_col_date > to_date('2015-08-01','yyyy-mm-dd')  
+         then months_between(to_date('2015-08-01','yyyy-mm-dd'),a.hs_cdma_col_date) 
+         else 0 end)/
+case when sum(case when a.hs_cdma_model <> b.hs_cdma_model and b.hs_cdma_col_date > to_date('2015-08-01','yyyy-mm-dd') then 1 else 0 end) > 0
+     then sum(case when a.hs_cdma_model <> b.hs_cdma_model and b.hs_cdma_col_date > to_date('2015-08-01','yyyy-mm-dd') then 1 else 0 end) 
+    else 0.000001 end  as 终端平均使用时长, ***/
+      
+sum(case when a.device_class <> b.hs_cdma_ter_model  then 1 else 0 end)  as 换机用户数,
+sum(case when a.device_class <> b.hs_cdma_ter_model  then 1 else 0 end)/count(1)  as 换机率
+              
+from dzqd_qrqm_lyhgj_201508t_p1 a,dzqd_lyhgj_2015_11_month_up_p1 b
+
+where a.prod_inst_id = b.prod_inst_id
+and (a.device_class is not null and a.device_class <> 'NULL') 
+and (a.Hs_Cdma_Ter_Model IS NOT NULL AND B.HS_CDMA_TER_MODEL <> 'NULL') 
+ 
+group by a.hs_cdma_ter_model
+order by count(1) desc;
+
+-------------------------------------------------------------------------------
+
+机型换机模型二 ：
+
+
+
+select  
+case when a.item_device_model = '华为' then '华为' 
+     when a.item_device_model = '酷派' then '酷派'
+     when a.item_device_model = '中兴' then '中兴'
+     when a.item_device_model = '苹果' then '苹果'
+     when a.item_device_model = '三星' then '三星'
+     when a.item_device_model = '小米' then '小米' 
+     when a.item_device_model = '联想' then '联想'
+     when a.item_device_model = '海信' then '海信'
+     when a.item_device_model = 'HTC'  then 'HTC'
+else '其他品牌'
+end as 终端品牌,  a.device_class,  count(1) as 用户数,
+ 
+sum(case when  e.device_class <> a.device_class and a.device_class = c.device_class and c.device_class = d.hs_cdma_ter_model then 1 else 0 end) as 换机用户数_T1,
+sum(case when  a.device_class <> c.device_class and c.device_class = d.hs_cdma_ter_model then 1 else 0 end) as 换机用户数_T2,
+sum(case when  a.device_class <> c.device_class and c.device_class <> d.hs_cdma_ter_model   then 1 else 0 end) as 换机用户数_T3,
+sum(case when (e.device_class <> a.device_class or e.device_class <>c.device_class or e.device_class <>d.hs_cdma_ter_model)  then 1 else 0 end) as 换机用户数_T13
+
+from (select * from  dzqd_qrqm_lyhgj_201508t_p1   where  device_class is not null and trim(device_class) <> 'NULL'  )a 
+left join  dzqd_qrqm_lyhgj_201510t_p1  d        ---   tb_asz_cdma_all_201510_new_m1 , d 是 10月份的数据 
+on       a.prod_inst_id = d.prod_inst_id  --- 'serv_id'
+left join  dzqd_qrqm_lyhgj_201509t_p1  c  --- 9月份数据
+on       c.prod_inst_id = d.prod_inst_id 
+left join dzqd_qrqm_lyhgj_201507t_p1   e   ---- 7月份数据 
+on       e.prod_inst_id = a.prod_inst_id
+ 
+  where  (trim(a.device_class) is not null AND trim(a.device_class)<>'NULL') 
+  and  (trim(a.item_device_model) is not null AND trim(a.item_device_model)<> 'NULL')
+  and (d.prod_inst_id is not null and trim(d.prod_inst_id) <> 'NULL')--- 'serv_id' 
+  and (d.HS_CDMA_ter_MODEL is not null and trim(d.HS_CDMA_TER_MODEL) <> 'null')
+  and (a.if_kz_flag_a is not null AND a.if_kz_flag_a <> 'NULL' AND   to_number(trim(a.if_kz_flag_a)) = 1)  -- 'payment_flag :是否出账用户'
+  and (     --(to_number(a.bytes_sw)+ to_number(nvl(a.bytes_4G,0))> 0)   --- a.vo_evdo_vol_m1 + a.vo_1x_vol_m1 , FLUX_4G_1       
+           (    to_number(a.bytes_sw) +          
+            to_number(case when a.bytes_4G is not null and trim(a.bytes_4G) <> 'NULL'  then a.bytes_4G else '0' END )>0 ) 
+           
+           
+           or (length(a.times_esms) >0 AND trim(a.times_esms) <> 'NULL'and trim(a.times_esms) <> '0') --- vo_cdma_ppsmsout_m1
+           or (length(a.bill_duration_out) >0 AND trim(a.bill_duration_out) <> 'NULL' and trim(a.bill_duration_out) <> '0')   ) --- vo_cdma_mouout_m1
+  
+  and a.device_class not like '%固定台%'
+group by 
+case when a.item_device_model = '华为' then '华为'
+     when a.item_device_model = '酷派' then '酷派'
+     when a.item_device_model = '中兴' then '中兴'
+     when a.item_device_model = '苹果' then '苹果'
+     when a.item_device_model = '三星' then '三星'
+     when a.item_device_model = '小米' then '小米' 
+     when a.item_device_model = '联想' then '联想'
+     when a.item_device_model = '海信' then '海信'
+     when a.item_device_model = 'HTC'  then 'HTC'
+else '其他品牌'
+end , a.device_class ;
+
+---------------------------------------------------------------------
+
+  
+
+
+
+
+
+---------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
